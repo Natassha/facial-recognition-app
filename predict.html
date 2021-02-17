@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>predict image app</title>
+    <link rel='stylesheet' href='bootstrap.min.css'></style>
+    <link rel='stylesheet' href='font-awesome.min.css'></style>
+    <script src="bootstrap.bundle.min.js"></script>
+    <script src='jquery-3.3.1.slim.min.js'></script>
+    <style>
+        * {
+            font-size:30px;
+        }
+#myProgress {
+  width: 100%;
+  background-color: #ddd;
+}
+
+#myBar {
+  width: 10%;
+  height: 30px;
+  background-color: #d68822;
+  text-align: center;
+  line-height: 30px;
+  color: white;
+}
+</style>
+
+<script>
+// var i = 0;
+// function move() {
+//   var j = document.getElementById("myBar");
+//   j.style.display = "block";
+//   if (i == 0) {
+//     i = 1;
+//     var elem = document.getElementById("myBar");
+//     var width = 10;
+//     var id = setInterval(frame, 570);
+//     function frame() {
+//       if (width >= 100) {
+//         clearInterval(id);
+//         i = 0;
+//       } else {
+//         width++;
+//         elem.style.width = width + "%";
+//         elem.innerHTML = width  + "%";
+//       }
+//     }
+//   }
+// }
+
+var i = 0;
+function move() {
+  var j = document.getElementById("myBar");
+  j.style.display = "block";
+  updateProgress(10);
+  setTimeout(() => updateProgress('20'), 2000)
+   let width = 10;
+   let interval = setInterval(frame, 500);
+   function frame() {
+   		width++;
+      if(width < 90) {
+      	updateProgress(width);
+      } else {
+      	clearInterval(interval);
+      }
+   }
+
+}
+
+function updateProgress(percent) {
+	var elem = document.getElementById("myBar");
+   elem.style.width = percent + "%";
+    elem.innerHTML = percent  + "%";
+}
+
+</script>
+
+    <!-- Page Wrapper -->
+    <div style="background: url(bg4.jpg)" class="page-holder bg-cover">
+
+      <div class="container py-5">
+        <header class="text-center text-white">
+          <h3 class="display-4 font-weight-bold mb-4">Which celebrity do you look like?</h3>
+          <style>
+            .display-4  {
+              font-size: 20px;
+            }
+            .font-weight-bold {
+              font-size: 20px;
+            }
+            .mb-4 {
+              font-size: 20px;
+            }
+            </style>
+          <p class="lead mb-0">Use our image recognition model and find your celebrity twin.</p>
+          <!-- <p class="font-italic">Snippet By <a href="https://bootstrapious.com" class="text-white">
+              <u>Bootstrapious</u></a>
+          </p> -->
+        </header>
+        <br>
+<header class="text-center text-white">
+        <div class="text-white">
+          <input id="image-selector" onchange="loadFile(event)" name='imagefile' type="file" style='width:200px;height:20px;' class="inputfile">
+          <label for="image-selector">Choose a file</label>
+          <button onclick="move()" id="predict-button" class="button1">Predict</button>
+</header>
+
+<script>
+var loadFile = function(event) {
+	var image = document.getElementById('output');
+	image.src = URL.createObjectURL(event.target.files[0]);
+};
+</script>
+
+<script>
+  $('.new_Btn').click(function() {
+  $('#html_btn').click();
+});
+</script>
+
+<br>
+<header class="text-center text-white">
+<img id="selected-image" width='300' height='300' src=""/>
+<br><br>
+  <div id="myProgress">
+            <div id="myBar" style="display:none">10%</div>
+          </div>
+<br>
+<p><span id="face-prediction"></span></p>
+</header>
+
+<style>
+
+  .inputfile {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+.inputfile + label {
+    font-size: 1.25em;
+    font-weight: 700;
+    color: white;
+    background-color: black;
+    display: inline-block;
+}
+
+.inputfile:focus + label,
+.inputfile + label:hover {
+    background-color: #f06237;
+}
+
+.inputfile + label {
+  cursor: pointer; /* "hand" cursor */
+}
+
+.inputfile:focus + label {
+  outline: 1px dotted #000;
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.button1 {
+  background-color: #f06237; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 0.95em;
+}
+
+.button1:hover {
+  background-color: #b0540e;
+}
+
+</style>
+
+</div>
+
+      </div>
+    </div></style>
+
+    <style>
+        .page-holder {
+      min-height: 100vh;
+    }
+
+    .bg-cover {
+      background-size: cover !important;
+    }
+
+    .display-4  {
+      font-size: 50px;
+    }
+    .font-weight-bold {
+      font-size: 50px;
+    }
+    .mb-4 {
+      font-size: 50px;
+    }
+
+    </style>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+<script>
+    let base64Image;
+    $("#image-selector").change(function() {
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            let dataURL = reader.result;
+            $('#selected-image').attr("src", dataURL);
+            base64Image = dataURL.replace("data:image/png;base64,","");
+            console.log(base64Image);
+        }
+        reader.readAsDataURL($("#image-selector")[0].files[0]);
+        $("#face-prediction").text("");
+    });
+
+    $("#predict-button").click(function(){
+        let message = {
+            image: base64Image
+        }
+        console.log(message);
+        $.post("http://127.0.0.1:8086/predict", JSON.stringify(message), function(response){
+            $("#face-prediction").text(response);
+            console.log(response);
+            updateProgress(100);
+        });
+    });
+</script>
+</head>
+</html>
